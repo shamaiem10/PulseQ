@@ -1,8 +1,0 @@
-.task-list{
-    background-color: rgb(183, 194, 203);
-    height:700px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-}
