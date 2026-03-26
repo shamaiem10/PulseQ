@@ -1,0 +1,82 @@
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px;
+  margin-bottom: 30px;
+
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+
+  border: 1px solid rgba(255, 143, 207, 0.3);
+  box-shadow: 0 0 18px rgba(255, 143, 207, 0.2);
+
+  font-family: 'Segoe UI', sans-serif;
+}
+
+
+.navbar h1 {
+  font-size: 22px;
+  color: #ff8fcf;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(255, 143, 207, 0.6);
+}
+
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+
+.nav-links a {
+  color: #ddd;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  transition: 0.3s ease;
+}
+
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background: #ff8fcf;
+  box-shadow: 0 0 8px #ff8fcf;
+  transition: 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #ff8fcf;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+
+.logout-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+  transition: all 0.2s ease;
+  background: transparent;
+  border: 1px solid rgba(255, 143, 207, 0.3);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.logout-btn:hover {
+  border-color: rgba(255, 100, 100, 0.6);
+  color: rgba(255, 100, 100, 0.9);
+  box-shadow: 0 0 10px rgba(255, 100, 100, 0.15);
+}

@@ -1,0 +1,13 @@
+<nav class="navbar">
+  <h1>TaskFlow</h1>
+
+  <div class="nav-links">
+    <a routerLink="/dashboard">Dashboard</a>
+    <a routerLink="/tasks">Tasks</a>
+    <a routerLink="/tasks/new">New Task</a>
+    <button class="logout-btn" (click)="logout()" *ngIf="isLoggedIn()">
+      <i class="bi bi-box-arrow-right"></i>
+      Logout
+    </button>
+  </div>
+</nav>

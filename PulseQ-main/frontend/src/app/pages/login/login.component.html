@@ -1,0 +1,59 @@
+<div class="page">
+
+  
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="card">
+
+    <div class="card-header">
+      <div class="logo">TF</div>
+      <h1>Welcome back</h1>
+      <p>Sign in to your TaskFlow account</p>
+    </div>
+
+    <form (ngSubmit)="login()" class="form">
+
+      <div class="field">
+        <label>Email</label>
+        <input
+          [(ngModel)]="email"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input
+          [(ngModel)]="password"
+          name="password"
+          type="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <div class="error-box" *ngIf="error">
+        <span class="error-icon">!</span>
+        {{ error }}
+      </div>
+
+      <button type="submit" [class.loading]="loading" [disabled]="loading">
+        <span *ngIf="!loading">Sign in</span>
+        <span *ngIf="loading" class="spinner"></span>
+      </button>
+
+    </form>
+
+    <div class="footer">
+      Don't have an account?
+      <a routerLink="/register">Register here</a>
+    </div>
+
+  </div>
+</div>
