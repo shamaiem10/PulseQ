@@ -1,3 +1,314 @@
+# 🌸 TaskFlow
+
+> ***A production-style task management app built with the MEAN stack — featuring JWT auth, user-isolated tasks, and a sleek dark/pink UI.***
+
+---
+
+## 🛠️ Tech Stack
+
+### 🖥️ *Frontend*
+
+| 💡 Technology | 🎯 Purpose |
+|---|---|
+| **Angular 17+** *(Standalone)* | UI Framework |
+| **TypeScript** | Type-safe JavaScript |
+| **RxJS** | Reactive HTTP & state |
+| **Angular Router** | Routing & route guards |
+| **Bootstrap Icons** | UI iconography |
+| **Syne + DM Sans** *(Google Fonts)* | Typography |
+
+### ⚙️ *Backend*
+
+| 💡 Technology | 🎯 Purpose |
+|---|---|
+| **Node.js + Express.js** | Server & routing |
+| **MongoDB + Mongoose** | Database & ODM |
+| **JWT** *(jsonwebtoken)* | Stateless authentication |
+| **bcryptjs** | Password hashing |
+| **dotenv** | Environment variables |
+| **CORS** | Cross-origin handling |
+
+---
+
+## 🏗️ Architecture
+
+### 🔷 *Backend — 4-Layer Architecture*
+
+> ***Each layer has one job and only speaks to the layer directly below it.***
+
+```
+📥  HTTP Request
+        │
+        ▼
+🔐  Middleware        →  Verifies JWT · Attaches req.user
+        │
+        ▼
+🎮  Controller        →  Handles req & res
+        │
+        ▼
+⚙️   Service          →  Business logic & validation
+        │
+        ▼
+🗄️   Repository       →  All DB queries (scoped to userId)
+        │
+        ▼
+🍃  MongoDB
+```
+
+**`authMiddleware.js`** → verifies token on every protected route  
+**`authController.js`** → handles register & login HTTP logic  
+**`taskController.js`** → handles task req/res lifecycle  
+**`taskService.js`** → validates inputs, enforces rules  
+**`taskRepository.js`** → all Mongoose queries in one place  
+
+---
+
+### 🔶 *Frontend — Service-Based Architecture*
+
+```
+🛡️  Router + Auth Guard
+           │
+           ▼
+🧩  Components
+    ├── LoginComponent
+    ├── RegisterComponent
+    ├── DashboardComponent
+    ├── NavbarComponent
+    └── TaskListComponent
+           │
+           ▼
+🔧  Services
+    ├── AuthService       →  Auth state & API calls
+    ├── TaskService       →  Task CRUD API calls
+    └── LoadingService    →  Global loading stream
+           │
+           ▼
+🌐  HTTP Client
+    ├── loadingInterceptor   →  Shows/hides spinner
+    └── errorInterceptor     →  Catches errors & 401s
+```
+
+---
+
+### 🔑 *Authentication Flow*
+
+```
+1. 📝  Register    →  password hashed with bcrypt  →  saved to MongoDB
+2. 🔓  Login       →  bcrypt.compare()  →  JWT token signed & returned
+3. 💾  Frontend    →  token saved to localStorage
+4. 📡  API Calls   →  Authorization: Bearer <token> sent in every header
+5. ✅  Backend     →  jwt.verify()  →  req.user.userId attached
+6. 🔒  DB Queries  →  ALL scoped to userId  →  users only see their data
+7. ⏰  Expiry      →  isLoggedIn() checks exp  →  auto logout if expired
+8. 🚨  401 Error   →  errorInterceptor  →  logout() + redirect to /login
+```
+
+---
+
+## 🧱 SOLID Principles
+
+### ❌ *What Was Wrong Before*
+
+> ***All business logic, database queries, and HTTP handling were crammed into route files.***
+
+- 🔴 Routes were doing **too many things at once**
+- 🔴 **Direct dependency** on MongoDB models everywhere  
+- 🔴 **No separation of concerns** — impossible to scale
+- 🔴 **Poor folder structure** — hard to read, test, or maintain
+
+---
+
+### ✅ *What Was Refactored*
+
+| 📁 Layer | ✅ Responsibility |
+|---|---|
+| **Routes** | Define API endpoints *only* |
+| **Controllers** | Handle HTTP request & response |
+| **Services** | Business logic & validation |
+| **Repositories** | All database operations |
+| **Models** | Data schema definitions |
+| **Config** | Database connection |
+
+---
+
+### 📐 *Principles Applied*
+
+#### ***S — Single Responsibility Principle***
+> *"Every file has **one job** and **one reason to change**."*
+
+| 📄 File | ✅ Single Job |
+|---|---|
+| `authController.js` | Only handles register/login HTTP logic |
+| `taskService.js` | Only handles task business rules |
+| `taskRepository.js` | Only runs database queries |
+| `authMiddleware.js` | Only verifies JWT tokens |
+| `LoadingService` | Only manages loading state |
+| `errorInterceptor` | Only catches HTTP errors |
+| `authGuard` | Only checks route access |
+
+---
+
+#### ***D — Dependency Inversion Principle***
+> *"**High-level modules** depend on **abstractions**, not low-level details."*
+
+- 🔵 `taskController.js` calls **`taskService`** → has **zero knowledge** of the database
+- 🔵 `taskService.js` calls **`taskRepository`** → never imports Mongoose directly
+- 🔵 Angular components call **`AuthService`** → never touch `HttpClient` directly
+- 🔵 The entire database layer can be **swapped** without touching controllers or services
+
+---
+
+#### ***O — Open/Closed Principle***
+> *"**Open** for extension · **Closed** for modification."*
+
+- 🟢 New interceptors can be added **without touching existing ones**
+- 🟢 New routes added as **separate files** — `server.js` never changes
+- 🟢 New repository methods added **without changing** the service layer
+
+---
+
+## 📁 Project Structure
+
+```
+🗂️  TaskFlow/
+│
+├── 📂 backend/
+│   ├── 📂 config/
+│   │   └── 📄 db.js                   # MongoDB connection
+│   ├── 📂 controllers/
+│   │   ├── 📄 authController.js        # Register & login
+│   │   └── 📄 taskController.js        # Task CRUD handlers
+│   ├── 📂 middleware/
+│   │   └── 📄 authMiddleware.js        # JWT verification
+│   ├── 📂 models/
+│   │   ├── 📄 User.js                  # User schema
+│   │   └── 📄 Task.js                  # Task schema + userId
+│   ├── 📂 repositories/
+│   │   └── 📄 taskRepository.js        # All DB queries
+│   ├── 📂 routes/
+│   │   ├── 📄 auth.js                  # /api/auth
+│   │   └── 📄 tasks.js                 # /api/tasks (protected)
+│   ├── 📂 services/
+│   │   └── 📄 taskService.js           # Business logic
+│   ├── 📄 .env                         # Environment variables
+│   └── 📄 server.js                    # App entry point
+│
+└── 📂 frontend/src/app/
+    ├── 📂 components/
+    │   ├── 📂 navbar/
+    │   └── 📂 task-list/
+    |   └── 📂 task-form/
+    ├── 📂 guards/
+    │   └── 📄 auth.guard.ts            # Route protection
+    ├── 📂 interceptors/
+    │   ├── 📄 error.interceptor.ts     # Global error handler
+    │   └── 📄 loading.interceptor.ts   # Global loading state
+    ├── 📂 pages/
+    │   ├── 📂 login/
+    │   ├── 📂 register/
+    │   └── 📂 dashboard/
+    └── 📂 services/
+        ├── 📄 auth.service.ts
+        ├── 📄 task.service.ts
+        └── 📄 loading.service.ts
+```
+
+---
+
+## 🚀 Getting Started
+
+### *Backend Setup*
+
+```bash
+cd backend
+npm install
+```
+
+Create your **`.env`** file:
+
+```env
+PORT=3000
+MONGO_URI=mongodb://127.0.0.1:27017/taskflow
+JWT_SECRET=your_super_secret_key
+```
+
+Start the server:
+
+```bash
+node server.js
+```
+
+You should see:
+```
+✅ authController loaded
+🚀 Server running on port 3000
+🍃 Connected to MongoDB
+```
+
+### *Frontend Setup*
+
+```bash
+cd frontend
+npm install
+npm install jwt-decode
+ng serve
+```
+
+> ***Open `http://localhost:4200` in your browser***
+
+---
+
+## 📡 API Reference
+
+### 🔓 *Auth Routes — Public*
+
+| Method | Endpoint | Body |
+|---|---|---|
+| `POST` | **`/api/auth/register`** | `{ email, password }` |
+| `POST` | **`/api/auth/login`** | `{ email, password }` |
+
+### 🔐 *Task Routes — Protected*
+> ***All require `Authorization: Bearer <token>` header***
+
+| Method | Endpoint | Body |
+|---|---|---|
+| `GET` | **`/api/tasks`** | — |
+| `POST` | **`/api/tasks`** | `{ title, description? }` |
+| `PUT` | **`/api/tasks/:id`** | `{ status }` |
+| `DELETE` | **`/api/tasks/:id`** | — |
+
+### *Example Login Response*
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "64a1b2c3d4e5f6a7b8c9d0e1",
+    "email": "user@example.com"
+  }
+}
+```
+
+---
+
+## ✨ Features
+
+- 🔐 **JWT Authentication** — stateless auth with 1-day token expiry
+- 🔒 **Password Hashing** — bcrypt with 10 salt rounds
+- 👤 **User-Specific Tasks** — every task scoped to its owner via `userId`
+- 🛡️ **Route Guards** — unauthenticated users redirected to `/login`
+- 🚪 **Auto-Logout** — expired tokens and 401 responses trigger instant logout
+- ⏳ **Global Loading States** — spinner on every API call via interceptor
+- 🚨 **Global Error Handling** — HTTP errors caught, app never crashes
+- ✅ **Input Validation** — enforced on both frontend and backend
+- 🌐 **CORS Protection** — backend only accepts requests from `localhost:4200`
+- ⚠️ **Env Validation** — server refuses to start if `.env` vars are missing
+
+---
+
+
+
+# WEEK-BY-WEEK Breakdown
+
 # PulseQ - Week 1 (TaskFlow)
 
 This is **Week 1 task** of the PulseQ project. The goal is to create a simple **Angular application** that displays a list of tasks using static data, with the ability to toggle their status (UI only).
@@ -316,3 +627,7 @@ backend/
 - Config: DB connection
 
 This setup applies SRP and DIP, reduces logic in routes, and ensures maintainable, scalable backend architecture.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
